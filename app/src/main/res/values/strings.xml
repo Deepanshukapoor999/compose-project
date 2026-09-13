@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">Compose_Project</string>
+    <string name="textphoneauth"><![CDATA[On tapping \"Send confirmation code\",Krest IOC will send you an sms to confirm your phone number.]]></string>
+
+</resources>

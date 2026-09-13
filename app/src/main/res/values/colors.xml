@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="purple_200">#FFBB86FC</color>
+    <color name="purple_500">#FF6200EE</color>
+    <color name="purple_700">#FF3700B3</color>
+    <color name="teal_200">#FF03DAC5</color>
+    <color name="teal_700">#FF018786</color>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+    
+    <color name="orangeColor">#FFB74E</color>
+    <color name="blueColor">#1b63cd</color>
+
+
+
+        <color name="oldYellow">#FFB74E</color>
+        <color name="colorPrimary">#1b63cd</color>
+        <color name="colorPrimaryDark">#000000</color>
+        <color name="colorOnSurface">#636363</color>
+        <color name="textHeadingColor">#314250</color>
+        <color name="textColor">#636363</color>
+        <color name="colorAccent">#0188D1</color>
+        <color name="colorWhite">#FFFFFF</color>
+        <color name="colorBlack">#000000</color>
+        <color name="newback">#C7EEFF</color>
+        <color name="progressback">#FFEC94</color>
+        <color name="overduesback">#FFAEAE</color>
+        <color name="overdue">#f2ca00</color>
+        <color name="mtrl_textinput_default_box_stroke_color">#fff</color>
+        <color name="compback">#B0E57C</color>
+        <color name="colorBtnBg">#f2aaaa</color>
+        <color name="grey">#C9C9C9</color>
+        <color name="lightGray">#EDEDED</color>
+
+        <color name="gray">#f45c5c5c</color>
+        <color name="colorliteblue">#b8c0f1</color>
+        <color name="imagebg">#e4e4e4</color>
+        <color name="hint_color">#939393</color>
+
+        <color name="notinotreadcolor">#B6B6B6</color>
+        <color name="colorbg">#f3fafe</color>
+        <color name="inprogresscolor">#FFB74E</color>
+        <color name="pendingcolor">#FF0000</color>
+        <color name="closedcolor">#006400</color>
+        <color name="overduecolor">#FFBF00</color>
+        <color name="commentselfcolor">#ede0ff</color>
+        <color name="directorcreatedcolorbg">#ffe1ff</color>
+        <color name="managercreatedcolorbg">#dfdbe0</color>
+        <color name="usercreatedcolorbg">#eed5d2</color>
+
+
+        <color name="multiple_image_select_primary">#000000</color>
+        <color name="multiple_image_select_primaryDark">#000000</color>
+        <color name="multiple_image_select_primaryLight">#D1C4E9</color>
+        <color name="multiple_image_select_accent">#536DFE</color>
+        <color name="multiple_image_select_primaryText">#212121</color>
+        <color name="multiple_image_select_secondaryText">#727272</color>
+        <color name="multiple_image_select_divider">#B6B6B6</color>
+        <color name="task_Detail">#F6F6F6</color>
+
+        <color name="multiple_image_select_toolbarPrimaryText">#FFFFFF</color>
+        <color name="multiple_image_select_albumTextBackground">#99FFFFFF</color>
+        <color name="multiple_image_select_imageSelectBackground">#000000</color>
+        <color name="bg_row_background">#fa315b</color>
+        <color name="category_bg">#B3E5FC</color>
+
+        <color name="green">#0ACC4E</color>
+
+
+
+        <color name="newBlueColor">#1b63cd</color>
+
+        <color name="lightBlue">#eef7fe</color>
+        <color name="darkBlue">#73aef4</color>
+
+        <color name="lightYellow">#fefae5</color>
+        <color name="darkYellow">#fada76</color>
+
+        <color name="lightPink">#fdedee</color>
+        <color name="darkPink">#fda5a3</color>
+
+        <color name="lightGreen">#f1faee</color>
+        <color name="darkGreen">#8ccf6c</color>
+
+
+</resources>
