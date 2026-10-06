@@ -1,9 +1,12 @@
 package com.deep.compose_project
 
+import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -25,6 +28,7 @@ import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.navigation.NavController
 import com.deep.compose_project.bottomNavigate.BottomNavigationBar
+import com.deep.compose_project.compose_project.screens.TaskDetailScreen
 import com.deep.compose_project.screens.HomeScreen
 import com.deep.compose_project.screens.LoginScreen
 import com.deep.compose_project.screens.SplashScreen
@@ -59,6 +63,7 @@ class MainActivity : ComponentActivity() {
 
 
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun AppNavigation() {
 
@@ -80,13 +85,47 @@ fun AppNavigation() {
             )
         }
         composable("login") {
-            LoginScreen(navController)
+
+            LoginScreen(
+                navController = navController,
+                onClick = { number, password ->
+
+                    Log.e(
+                        "LOGIN",
+                        "number = $number password = $password"
+                    )
+
+                    navController.navigate(
+                        "home/$number/$password"
+                    ) {
+                        popUpTo("login") {
+                            inclusive = true
+                        }
+                    }
+                }
+            )
         }
-        composable("home") {
-            MainScreen(navController)
+
+        composable(
+            route = "home/{number}/{password}"
+        ) { backStackEntry ->
+
+            val number = backStackEntry.arguments?.getString("number") ?: ""
+
+            val password = backStackEntry.arguments?.getString("password") ?: ""
+
+            MainScreen(
+                navController = navController,
+                number = number,
+                password = password
+            )
         }
+
         composable("task") {
             TaskScreen(navController)
+        }
+        composable("taskDetail") {
+            TaskDetailScreen(navController)
         }
     }
 }
@@ -95,7 +134,9 @@ fun AppNavigation() {
 
 
 @Composable
-fun MainScreen(navController : NavController) {
+fun MainScreen(navController : NavController ,
+               number: String,
+               password: String) {
 
     var selectedIndex by rememberSaveable {
         mutableIntStateOf(0)
@@ -109,7 +150,9 @@ fun MainScreen(navController : NavController) {
         when (selectedIndex) {
 
             0 -> {
-                HomeScreen(navController)
+                HomeScreen(navController,
+                    number,
+                        password)
             }
 
             1 -> {

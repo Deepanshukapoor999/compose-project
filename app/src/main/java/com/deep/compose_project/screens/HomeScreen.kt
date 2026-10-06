@@ -82,13 +82,15 @@ import com.deep.compose_project.model.TaskSummaryModel
 import com.deep.compose_project.model.UserTotalTaskData
 import com.deep.compose_project.model.UserTotalTaskModel
 import com.deep.compose_project.states.TaskUiState
+import com.deep.compose_project.utils.Constants
 import kotlinx.coroutines.CoroutineScope
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Preview
 @Composable
-fun HomeScreen(navController : NavController?=null,viewModel: TaskViewModel = viewModel()) {
+fun HomeScreen(navController : NavController?=null, number: String="", password: String="", viewModel: TaskViewModel = viewModel()) {
 
+    Log.e("dadadadadad","dadhhjagdgada"+number+"  "+password)
 
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
@@ -97,7 +99,7 @@ fun HomeScreen(navController : NavController?=null,viewModel: TaskViewModel = vi
     LaunchedEffect(Unit) {
 
         viewModel.getUserTotalTasks(
-            token = "3411a09f060a63f51f2f172bff2fe61d",
+            token = Constants.token,
             type = "month",
             month = 9,
             userId = 6,

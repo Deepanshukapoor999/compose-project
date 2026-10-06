@@ -3,6 +3,7 @@ package com.deep.compose_project.screens
 import android.os.Build
 import android.util.Log
 import android.widget.Space
+import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -57,6 +58,8 @@ import kotlinx.coroutines.launch
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.style.TextAlign
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.deep.compose_project.api.TaskViewModel
@@ -65,6 +68,7 @@ import com.deep.compose_project.model.AllTaskShowModel
 import com.deep.compose_project.model.UserTotalTaskData
 import com.deep.compose_project.states.AllTaskUiState
 import com.deep.compose_project.states.TaskUiState
+import com.deep.compose_project.utils.Constants
 import java.time.LocalDate
 import java.time.YearMonth
 import java.util.Locale
@@ -81,49 +85,37 @@ fun TaskScreen(navController : NavController?=null,viewModel: TaskViewModel = vi
     var taskList by remember {
         mutableStateOf<AllTaskShowModel?>(null)
     }
-    val uiAllTaskState by viewModel.uiAllTaskState.collectAsStateWithLifecycle()
+    val context = LocalContext.current
 
-    LaunchedEffect(Unit) {
+    var statusTop by remember {
+        mutableStateOf("0")
+    }
+    var selectedDate by remember {
+        mutableStateOf("")
+    }
+
+    Log.e("HowMany","HowMany")
+///ApiCall
+    val uiAllTaskState by viewModel.uiAllTaskState.collectAsStateWithLifecycle()
+    LaunchedEffect(statusTop, selectedDate) {
+
         viewModel.getAllTasksToUserDateTimeWise(
             year = "2026",
-            date = "2026-9-2",
+            date = "2026-9-${selectedDate}",
             user_id = "6",
             month = "9",
             user_type = "4",
-            token = "3411a09f060a63f51f2f172bff2fe61d",
+            token = Constants.token,
             timezone = "Asia/Kolkata",
+            status = getStatus(statusTop),
             isMyTask = "2",
             searchByDeparment = "",
             searchBySubCompany = ""
         )
     }
-    when (val state = uiAllTaskState) {
 
-        is AllTaskUiState.Loading -> {
 
-            Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
-            ) {
-                CircularProgressIndicator()
-            }
-        }
-
-        is AllTaskUiState.Success -> {
-            taskList = state.data
-        }
-
-        is AllTaskUiState.Error -> {
-
-            val message = (uiAllTaskState as AllTaskUiState.Error).message
-
-            Text(
-                text = message,
-                color = Color.Red
-            )
-        }
-    }
-
+///Ui
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -146,34 +138,63 @@ fun TaskScreen(navController : NavController?=null,viewModel: TaskViewModel = vi
                     bottom = 80.dp,
                     start = 20.dp,
                     end = 20.dp
-                ).verticalScroll(scrollState),
+                )
+                .verticalScroll(scrollState),
             horizontalAlignment = Alignment.Start,
 
             ) {
 
             StatusUi(){item->
-                Log.e("SelectedStaus","SelectedStaus: "+item)
+                statusTop = item
+                Log.e("SelectedStaus","SelectedStaus: "+statusTop)
+
             }
 
             Spacer(modifier = Modifier.height(10.dp))
 
-            DateUi()
+            DateUi(){it->
+                selectedDate = it
+                Log.e("SelectedDate","SelectedDate "+selectedDate)
+            }
 
 
             Spacer(modifier = Modifier.height(20.dp))
 
 
             LazyColumn(
-                modifier = Modifier
+                modifier = Modifier.padding(bottom = 10.dp)
                     .fillMaxWidth()
                     .weight(1f),
                 verticalArrangement = Arrangement.spacedBy(10.dp)
             ) {
 
                 taskList?.let { data ->
-                    if (data.data.isNotEmpty()) {
-                        items(taskList!!.data.size) { i ->
-                            TaskCard(taskList!!.data, i)
+
+                    if (
+                        data.status.equals("true", ignoreCase = true) &&
+                        data.data.isNotEmpty()
+                    ) {
+
+                        items(
+                            items = data.data,
+                            key = { it.TaskCode } // apna unique ID field
+                        ) { task ->
+
+                            TaskCard(task){
+                                navController!!.navigate("taskDetail")
+                            }
+                        }
+
+                    } else {
+
+                        item {
+                            dataNotFound(
+                                if (data.message.isNotEmpty()) {
+                                    data.message
+                                } else {
+                                    "No tasks available"
+                                }
+                            )
                         }
                     }
                 }
@@ -181,6 +202,44 @@ fun TaskScreen(navController : NavController?=null,viewModel: TaskViewModel = vi
 
         }
     }
+
+
+
+///ApiResponse
+    when (val state = uiAllTaskState) {
+
+        is AllTaskUiState.Loading -> {
+            taskList = null
+            Box(modifier = Modifier.fillMaxSize().clickable(
+                enabled = true,
+                onClick = { }
+            ),
+                contentAlignment = Alignment.Center) {
+                CircularProgressIndicator()
+            }
+        }
+
+        is AllTaskUiState.Success -> {
+            Log.d("TASK_API", "Success data = ${state.data}")
+            Log.d("TASK_API", "status = ${state.data.status}")
+            Log.d("TASK_API", "message = ${state.data.message}")
+            Log.d("TASK_API", "data size = ${state.data.data.size}")
+
+            taskList = state.data
+
+        }
+
+        is AllTaskUiState.Error -> {
+
+            val message = (uiAllTaskState as AllTaskUiState.Error).message
+            taskList = null
+            Text(
+                text = message,
+                color = Color.Red
+            )
+        }
+    }
+
 }
 
 
@@ -205,7 +264,7 @@ fun StatusUi(onClickItem:(String)-> Unit){
                 shape = if (isSelected) {RoundedCornerShape(10.dp)}else{RoundedCornerShape(0.dp)},
                 modifier = Modifier.clickable {
                     selectedIndex = i
-                    onClickItem(items[i])
+                    onClickItem(i.toString())
                 },
                 colors = CardDefaults.cardColors(
                     containerColor = if (isSelected) {
@@ -220,7 +279,7 @@ fun StatusUi(onClickItem:(String)-> Unit){
                     text = items[i],
                     modifier = Modifier.padding(
                         vertical = 6.dp,
-                        horizontal = 8.dp
+                        horizontal = 4.dp
                     ),
                     color = if (isSelected) {
                         Color.White
@@ -238,7 +297,7 @@ fun StatusUi(onClickItem:(String)-> Unit){
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun DateUi() {
+fun DateUi(onClickItem:(String)-> Unit) {
 
     val currentMonth = remember {
         YearMonth.now()
@@ -282,6 +341,7 @@ fun DateUi() {
                     .width(60.dp)
                     .clickable {
                         selectedDate = date
+                        onClickItem(date.dayOfMonth.toString())
                     },
                 shape = RoundedCornerShape(10.dp),
                 colors = CardDefaults.cardColors(
@@ -302,6 +362,7 @@ fun DateUi() {
                     Text(
                         text = date.dayOfMonth.toString(),
                         fontSize = 14.sp,
+                        lineHeight = 16.sp,
                         fontWeight = FontWeight.Bold,
                         color = if (isSelected) {
                             Color.White
@@ -316,6 +377,7 @@ fun DateUi() {
                             java.time.format.TextStyle.SHORT,
                             Locale.getDefault()
                         ),
+                        lineHeight = 14.sp,
                         fontSize = 12.sp,
                         color = if (isSelected) {
                             Color.White
@@ -323,10 +385,6 @@ fun DateUi() {
                             Color.Black
                         }
                     )
-
-
-
-
                 }
             }
         }
@@ -334,13 +392,14 @@ fun DateUi() {
 }
 
 
-@Preview
+
 @Composable
-fun TaskCard(dataList: List<AllTaskData> ?= null,i: Int = 0){
+fun TaskCard(task: AllTaskData,onClick:()-> Unit){
     Card(
-        modifier = Modifier
-            .fillMaxSize()
-            .clickable {},
+        modifier = Modifier.fillMaxWidth()
+            .clickable {
+                onClick()
+            },
         shape = RoundedCornerShape(10.dp),
         colors = CardDefaults.cardColors(
             containerColor = colorResource(R.color.lightGray)
@@ -348,7 +407,9 @@ fun TaskCard(dataList: List<AllTaskData> ?= null,i: Int = 0){
     )
     {
 
-        Row(modifier = Modifier.padding(10.dp).align(Alignment.CenterHorizontally),
+        Row(modifier = Modifier
+            .padding(vertical = 20.dp, horizontal = 10.dp)
+            .align(Alignment.CenterHorizontally),
             verticalAlignment = Alignment.CenterVertically) {
 
             Box(modifier = Modifier
@@ -360,19 +421,21 @@ fun TaskCard(dataList: List<AllTaskData> ?= null,i: Int = 0){
                     painter = painterResource(R.drawable.pass_document),
                     contentDescription = null,
                     modifier = Modifier
-                        .size(20.dp).align(alignment = Alignment.Center),
+                        .size(20.dp)
+                        .align(alignment = Alignment.Center),
                     contentScale = ContentScale.FillBounds
                 )
             }
 
             Column(
                 modifier = Modifier
-                    .fillMaxWidth().padding(start = 10.dp),
+                    .fillMaxWidth()
+                    .padding(start = 10.dp),
                 horizontalAlignment = Alignment.Start
             ) {
 
                 Text(
-                    text = dataList?.get(i)!!.TaskTitle,
+                    text = task.TaskTitle,
                     fontSize = 14.sp,
                     lineHeight = 16.sp,
                     fontWeight = FontWeight.Bold,
@@ -381,7 +444,7 @@ fun TaskCard(dataList: List<AllTaskData> ?= null,i: Int = 0){
 
 
                 Text(
-                    text = dataList[i].TaskDescription,
+                    text = task.TaskDescription,
                     fontSize = 12.sp,
                     lineHeight = 14.sp,
                     fontWeight = FontWeight.Medium,
@@ -389,17 +452,62 @@ fun TaskCard(dataList: List<AllTaskData> ?= null,i: Int = 0){
                 )
 
 
-                Text(
-                    text = "Created By: " + dataList[i].AssignedTaskBy,
-                    fontSize = 10.sp,
-                    lineHeight = 12.sp,
-                    fontWeight = FontWeight.Medium,
-                    color = Color.Gray
-                )
+                Row() {
+                    Text(
+                        text = "Created By: " + task.AssignedTaskBy,
+                        fontSize = 10.sp,
+                        lineHeight = 12.sp,
+                        fontWeight = FontWeight.Medium,
+                        color = Color.Gray
+                    )
+                    Spacer(modifier = Modifier.weight(1f))
+
+                    Text(
+                        text = task.TaskCreatedTime,
+                        fontSize = 10.sp,
+                        lineHeight = 10.sp,
+                        fontWeight = FontWeight.Medium,
+                        color = Color.Gray
+                    )
+                }
+
+
 
 
             }
         }
     }
+}
+
+@Composable
+fun dataNotFound(msg: String) {
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center,
+    ) {
+        Text(
+            text = msg,
+            style = TextStyle(
+                fontSize = 30.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color.Black,
+                textAlign = TextAlign.Center
+            )
+        )
+    }
+}
+@JvmName("getStatus1")
+fun getStatus(position:String): String {
+   var status = when (position.toInt()) {
+        0 -> "5"
+        1 -> "4"
+        2 -> "3"
+        3 -> "1"
+        4 -> "2"
+        else -> {
+            "-1"
+        }
+    }
+    return status as String
 }
 

@@ -1,6 +1,7 @@
 package com.deep.compose_project.api
 
 import com.deep.compose_project.model.AllTaskShowModel
+import com.deep.compose_project.model.TaskIdByModel
 import com.deep.compose_project.model.UserTotalTaskModel
 import retrofit2.http.GET
 import retrofit2.http.Query
@@ -28,8 +29,20 @@ interface WebAPiClientEndPoints {
         @Query("user_type") user_type: String,
         @Query("token") token: String,
         @Query("timezone") timezone: String,
+        @Query("status") status: String,
         @Query("isMyTask") isMyTask: String,
         @Query("searchByDeparment") searchByDeparment: String,
         @Query("searchBySubCompany") searchBySubCompany: String
     ): AllTaskShowModel
+
+
+//    https://demo.krestsolutions.in/krestioc/index.php/webservice/getTaskById?task_id=1264&timezone=Asia%2FKolkata&user_id=6&token=bc099af3a32213b23be7d79a182a4beb
+    @GET("getTaskById")
+    suspend fun getTaskById(
+        @Query("task_id") task_id: String,
+        @Query("timezone") timezone: String,
+        @Query("user_id") userId: String,
+        @Query("token") token: String,
+    ): TaskIdByModel
+
 }

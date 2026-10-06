@@ -41,9 +41,8 @@ import androidx.navigation.NavController
 import com.deep.compose_project.R
 
 
-@Preview
 @Composable
-fun LoginScreen(navController : NavController?=null){
+fun LoginScreen(navController : NavController?=null,onClick:(String, String)->Unit){
     var number by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
 
@@ -150,7 +149,8 @@ fun LoginScreen(navController : NavController?=null){
                     .clip(RoundedCornerShape(30.dp))
                     .background(colorResource(R.color.orangeColor))
                     .clickable{
-                        navController!!.navigate("home")
+                        onClick(number,password)
+//                        navController!!.navigate("home")
                     }
             ) {
                 Text(

@@ -2,6 +2,7 @@ package com.deep.compose_project.api
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.deep.compose_project.states.AllTaskByIDUiState
 import com.deep.compose_project.states.AllTaskUiState
 import com.deep.compose_project.states.TaskUiState
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -22,7 +23,8 @@ class TaskViewModel : ViewModel() {
     val uiAllTaskState: StateFlow<AllTaskUiState> = _uiAllTaskState.asStateFlow()
 
 
-
+    val _uiTaskByIdState =  MutableStateFlow<AllTaskByIDUiState>(AllTaskByIDUiState.Loading)
+    val uiTaskByIdState: StateFlow<AllTaskByIDUiState> = _uiTaskByIdState.asStateFlow()
 
 
     fun getUserTotalTasks(
@@ -79,6 +81,7 @@ class TaskViewModel : ViewModel() {
         user_type: String,
         token: String,
         timezone: String,
+        status: String,
         isMyTask: String,
         searchByDeparment: String,
         searchBySubCompany: String
@@ -98,6 +101,7 @@ class TaskViewModel : ViewModel() {
                     user_type = user_type,
                     token = token,
                     timezone = timezone,
+                    status = status,
                     isMyTask = isMyTask,
                     searchByDeparment = searchByDeparment,
                     searchBySubCompany = searchBySubCompany
@@ -123,4 +127,50 @@ class TaskViewModel : ViewModel() {
             }
         }
     }
+
+
+
+
+    fun getTaskById(
+        task_id: String,
+        timezone: String,
+        user_id: String,
+        token: String
+    ) {
+        viewModelScope.launch {
+
+            _uiTaskByIdState.value = AllTaskByIDUiState.Loading
+
+            try {
+
+                val response = repository.getTaskById(
+                    task_id = task_id,
+                    timezone = timezone,
+                    user_id = user_id,
+                    token = token
+                )
+
+                if (response.status == "true") {
+
+                    _uiTaskByIdState.value =
+                        AllTaskByIDUiState.Success(response)
+
+                } else {
+
+                    _uiTaskByIdState.value =
+                        AllTaskByIDUiState.Error(
+                            response.message ?: "Something went wrong"
+                        )
+                }
+
+            } catch (e: Exception) {
+
+                _uiTaskByIdState.value =
+                    AllTaskByIDUiState.Error(
+                        e.message ?: "Something went wrong"
+                    )
+            }
+        }
+    }
+
 }
